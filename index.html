@@ -9,13 +9,14 @@
 <body>
     <div class="game-container">
         <h1>The Mystery Grid</h1>
-        <div class="header">
+        <div id="gameHeader" class="header">
             <div class="team-info">Team: <span id="teamName"></span></div>
-            <div class="timer">Time Left: <span id="timeLeft">03:00</span></div>
+            <div class="timer">Time Elapsed: <span id="timeElapsed">00:00</span></div>
             <div class="score">Score: <span id="currentScore">0</span></div>
         </div>
 
-        <div id="gameGrid" class="grid-container"></div>
+        <div id="gameGrid" class="grid-container">
+            </div>
 
         <div class="challenge-area">
             <p id="challengeText"></p>
@@ -25,18 +26,30 @@
         </div>
 
         <button id="startGame">Start Game</button>
-        
+
         <div id="gameOverScreen" style="display:none;">
-            <h2>Game Over!</h2>
-            <p id="finalMessage"></p>
-            <p>Final Score: <span id="finalScore"></span></p>
-            <button id="restartGame">Play Again</button>
+            <h2 id="finalMessage"></h2>
+            <p>Your Final Score: <span id="finalScore"></span></p>
+            <p>Time Taken: <span id="timeTaken"></span></p>
+            <p>Your Rank: <span id="teamRank"></span></p>
         </div>
 
-        <div id="leaderboardContainer" style="display:none;">
-            </div>
+        <div id="leaderboardSection" style="display:none;">
+            <h2>Leaderboard</h2>
+            <table id="leaderboardTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Score</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
