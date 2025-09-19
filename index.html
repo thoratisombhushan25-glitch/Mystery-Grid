@@ -7,49 +7,52 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
+    <div id="game-container">
         <h1>The Mystery Grid</h1>
-        <div id="gameHeader" class="header">
-            <div class="team-info">Team: <span id="teamName"></span></div>
-            <div class="timer">Time Elapsed: <span id="timeElapsed">00:00</span></div>
-            <div class="score">Score: <span id="currentScore">0</span></div>
+
+        <div id="game-info">
+            <div id="timer">Time: <span id="time-display">03:00</span></div>
+            <div id="score">Score: <span id="score-display">0</span> points</div>
+            <div id="current-square-info">
+                Current Challenge: <span id="challenge-type"></span>
+            </div>
         </div>
 
-        <div id="gameGrid" class="grid-container">
+        <div id="grid-container">
             </div>
 
-        <div class="challenge-area">
-            <p id="challengeText"></p>
-            <input type="text" id="answerInput" placeholder="Type your answer here">
-            <button id="submitAnswer">Submit</button>
-            <p id="feedbackMessage"></p>
+        <div id="challenge-display">
+            <p id="challenge-text"></p>
+            <input type="text" id="answer-input" placeholder="Your answer">
+            <button id="submit-answer">Submit</button>
+        </div>
+        
+        <div id="game-over-screen" class="hidden">
+            <h2>Game Over!</h2>
+            <p id="final-message"></p>
         </div>
 
-        <button id="startGame">Start Game</button>
-
-        <div id="gameOverScreen" style="display:none;">
-            <h2 id="finalMessage"></h2>
-            <p>Your Final Score: <span id="finalScore"></span></p>
-            <p>Time Taken: <span id="timeTaken"></span></p>
-            <p>Your Rank: <span id="teamRank"></span></p>
-        </div>
-
-        <div id="leaderboardSection" style="display:none;">
-            <h2>Leaderboard</h2>
-            <table id="leaderboardTable">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Team</th>
-                        <th>Score</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
-        </div>
+        <audio id="correct-sound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+        <audio id="incorrect-sound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"></audio>
     </div>
+
+    <div id="editor-container" class="hidden">
+        <h2>Challenge Editor</h2>
+        <form id="challenge-form">
+            <input type="text" id="editor-type" placeholder="Type (e.g., Riddle, Math)">
+            <textarea id="editor-question" placeholder="Question"></textarea>
+            <input type="text" id="editor-answer" placeholder="Answer">
+            <input type="number" id="editor-points" placeholder="Points" value="10">
+            <button type="submit">Add Challenge</button>
+        </form>
+    </div>
+
+    <div id="leaderboard-container" class="hidden">
+        <h2>Top 10 Leaderboard</h2>
+        <ol id="leaderboard-list"></ol>
+    </div>
+
+    <script src="challenges.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
