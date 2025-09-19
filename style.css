@@ -1,0 +1,42 @@
+/* Previous CSS styles remain the same */
+/* ... */
+
+.game-container {
+    /* ... existing styles ... */
+    max-width: 900px; /* Slightly wider to fit leaderboard */
+}
+
+#leaderboardSection {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    text-align: left;
+}
+
+#leaderboardTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+#leaderboardTable th, #leaderboardTable td {
+    padding: 12px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+#leaderboardTable th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+#leaderboardTable tr:nth-child(even) {
+    background-color: #e9e9e9;
+}
+
+#leaderboardTable tbody tr:hover {
+    background-color: #d1e0f0;
+}
