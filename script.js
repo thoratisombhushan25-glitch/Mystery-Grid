@@ -3,26 +3,28 @@ const challengeTextElement = document.getElementById('challengeText');
 const answerInputElement = document.getElementById('answerInput');
 const submitButton = document.getElementById('submitAnswer');
 const feedbackMessageElement = document.getElementById('feedbackMessage');
-const timeLeftElement = document.getElementById('timeLeft');
+const timeElapsedElement = document.getElementById('timeElapsed');
 const currentScoreElement = document.getElementById('currentScore');
 const startGameButton = document.getElementById('startGame');
-const gameOverScreen = document.getElementById('gameOverScreen');
-const finalScoreElement = document.getElementById('finalScore');
-const restartGameButton = document.getElementById('restartGame');
-const teamNameElement = document.getElementById('teamName');
-const leaderboardContainer = document.getElementById('leaderboardContainer');
-const finalMessageElement = document.getElementById('finalMessage');
+const gameHeader = document.getElementById('gameHeader');
 
-let gridSize = 5; // 5x5 grid
+const gameOverScreen = document.getElementById('gameOverScreen');
+const finalMessageElement = document.getElementById('finalMessage');
+const finalScoreElement = document.getElementById('finalScore');
+const timeTakenElement = document.getElementById('timeTaken');
+const teamRankElement = document.getElementById('teamRank');
+
+const leaderboardSection = document.getElementById('leaderboardSection');
+const leaderboardTableBody = document.querySelector('#leaderboardTable tbody');
+
+let gridSize = 5;
 let currentSquareIndex = 0;
 let score = 0;
 let timer;
-let timeLeft = 180; // 3 minutes in seconds
-let gameStarted = false;
-let startTime; // To track the start time
-let leaderboard = []; // To store leaderboard data
+let timeElapsed = 0;
+let teamName = '';
 
-// Define your challenges here.
+// The same challenges array from the previous code
 const challenges = [
     { question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", answer: "echo", type: "riddle" },
     { question: "What has an eye but cannot see?", answer: "needle", type: "riddle" },
@@ -51,21 +53,9 @@ const challenges = [
     { question: "What can be caught, but not thrown?", answer: "cold", type: "riddle" },
 ];
 
-// Load leaderboard from localStorage if available
-document.addEventListener('DOMContentLoaded', () => {
-    const storedLeaderboard = localStorage.getItem('leaderboard');
-    if (storedLeaderboard) {
-        leaderboard = JSON.parse(storedLeaderboard);
-    }
-    initializeGrid();
-    document.getElementById('startGame').style.display = 'block';
-    leaderboardContainer.style.display = 'none';
-    gameOverScreen.style.display = 'none';
-});
-
 function initializeGrid() {
     gridElement.innerHTML = '';
-    for (let i = 0; i < gridSize * gridSize; i++) {
+    for (let i = 0; i < challenges.length; i++) {
         const square = document.createElement('div');
         square.classList.add('grid-square');
         square.dataset.index = i;
@@ -80,11 +70,10 @@ function updateGridDisplay() {
         if (index < currentSquareIndex) {
             square.classList.add('solved');
             square.innerHTML = '&#10003;';
-        }
-        if (index === currentSquareIndex) {
+        } else if (index === currentSquareIndex) {
             square.classList.add('current');
             square.textContent = '';
-        } else if (!square.classList.contains('solved')) {
+        } else {
             square.textContent = '?';
         }
     });
@@ -92,7 +81,7 @@ function updateGridDisplay() {
 
 function displayChallenge() {
     if (currentSquareIndex >= challenges.length) {
-        endGame(true); // Game completed
+        endGame();
         return;
     }
 
@@ -135,127 +124,145 @@ function checkAnswer() {
     answerInputElement.value = '';
 }
 
-function startTimer() {
+function startStopwatch() {
     timer = setInterval(() => {
-        timeLeft--;
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timeLeftElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            endGame(false); // Time's up
-        }
+        timeElapsed++;
+        const minutes = Math.floor(timeElapsed / 60);
+        const seconds = timeElapsed % 60;
+        timeElapsedElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }, 1000);
 }
 
 function startGame() {
-    gameStarted = true;
     startGameButton.style.display = 'none';
     gameOverScreen.style.display = 'none';
-    leaderboardContainer.style.display = 'none';
+    leaderboardSection.style.display = 'none';
     gridElement.style.display = 'grid';
+    gameHeader.style.display = 'flex';
     document.querySelector('.challenge-area').style.display = 'block';
 
-    const team = prompt("Enter your team name (2-3 players):");
-    teamNameElement.textContent = team || "Team Alpha";
+    const promptText = "Enter your team name (2-3 members):";
+    let enteredName = prompt(promptText);
 
+    const teamHistory = getTeamHistory();
+    const duplicateEntry = teamHistory.find(team => team.teamName.toLowerCase() === enteredName.toLowerCase());
+
+    if (duplicateEntry) {
+        // Log a notification for the host in the console
+        console.warn(`[DUPLICATE ENTRY ALERT] The team name "${enteredName}" has been used before.`);
+        window.alert(`Warning: The team name "${enteredName}" has already been used. A record has been made of this multiple entry.`);
+    }
+
+    teamName = enteredName || "Team Alpha";
+    document.getElementById('teamName').textContent = teamName;
+    
     currentSquareIndex = 0;
     score = 0;
-    timeLeft = 180;
-    startTime = new Date(); // Record start time
+    timeElapsed = 0;
     currentScoreElement.textContent = score;
-    timeLeftElement.textContent = "03:00";
-    feedbackMessageElement.textContent = '';
-
+    timeElapsedElement.textContent = "00:00";
+    
     initializeGrid();
     updateGridDisplay();
     displayChallenge();
-    startTimer();
+    startStopwatch();
 }
 
-function endGame(completed) {
-    gameStarted = false;
+function endGame() {
     clearInterval(timer);
     
-    // Calculate time taken
-    const endTime = new Date();
-    const timeTaken = Math.floor((endTime - startTime) / 1000); // in seconds
-
-    // Save score to leaderboard
-    const teamName = teamNameElement.textContent;
-    leaderboard.push({
-        team: teamName,
-        score: score,
-        date: new Date().toLocaleDateString(),
-        timeTaken: timeTaken,
-        completed: completed
-    });
-
-    // Sort and truncate leaderboard to top 10
-    leaderboard.sort((a, b) => {
-        if (b.score !== a.score) {
-            return b.score - a.score; // Higher score first
-        }
-        return a.timeTaken - b.timeTaken; // Faster time first
-    });
-    leaderboard = leaderboard.slice(0, 10);
-
-    // Save to localStorage
-    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-
-    // Show game over screen
-    challengeTextElement.textContent = "Game Over!";
-    answerInputElement.style.display = 'none';
-    submitButton.style.display = 'none';
-    feedbackMessageElement.textContent = '';
+    // Hide game elements
     gridElement.style.display = 'none';
+    gameHeader.style.display = 'none';
     document.querySelector('.challenge-area').style.display = 'none';
 
+    // Show game over screen
     gameOverScreen.style.display = 'block';
     finalScoreElement.textContent = score;
+    timeTakenElement.textContent = `${Math.floor(timeElapsed / 60).toString().padStart(2, '0')}:${(timeElapsed % 60).toString().padStart(2, '0')}`;
 
-    // Check rank and show personalized message
-    const myRank = leaderboard.findIndex(entry => entry.team === teamName) + 1;
+    // Save team's result to leaderboard
+    saveTeamResult(teamName, score, timeElapsed);
 
-    if (myRank > 0 && myRank <= 10) {
-        finalMessageElement.textContent = "Congratulations! You made it to the Top 10!";
-        finalMessageElement.style.color = '#28a745';
+    // Load and display the leaderboard
+    const rankedTeams = loadAndDisplayLeaderboard();
+
+    // Determine and display final message and rank
+    const myRank = rankedTeams.findIndex(team => team.teamName === teamName && team.score === score && team.completionTime === timeElapsed) + 1;
+    teamRankElement.textContent = myRank;
+
+    if (myRank <= 10) {
+        finalMessageElement.textContent = "Congratulations!";
     } else {
         finalMessageElement.textContent = "Thank you for participating!";
-        finalMessageElement.style.color = '#6c757d';
     }
-
-    // Display the leaderboard
-    displayLeaderboard();
 }
 
-function displayLeaderboard() {
-    leaderboardContainer.innerHTML = '<h2>Top 10 Teams</h2>';
-    const list = document.createElement('ol');
-    leaderboard.forEach((entry, index) => {
-        const listItem = document.createElement('li');
-        const timeString = new Date(entry.timeTaken * 1000).toISOString().substr(11, 8); // Format seconds into HH:MM:SS
-        const completionStatus = entry.completed ? ' (Completed)' : '';
-        listItem.textContent = `${entry.team}: ${entry.score} points, Time: ${timeString}${completionStatus}`;
-        list.appendChild(listItem);
+function getTeamHistory() {
+    const teams = localStorage.getItem('mysteryGridLeaderboard');
+    return teams ? JSON.parse(teams) : [];
+}
+
+function saveTeamResult(name, finalScore, finalTime) {
+    const teamHistory = getTeamHistory();
+    const newEntry = {
+        teamName: name,
+        score: finalScore,
+        completionTime: finalTime,
+        date: new Date().toISOString()
+    };
+    teamHistory.push(newEntry);
+    localStorage.setItem('mysteryGridLeaderboard', JSON.stringify(teamHistory));
+}
+
+function loadAndDisplayLeaderboard() {
+    const teamHistory = getTeamHistory();
+
+    // Sort the teams: by score descending, then by time ascending
+    teamHistory.sort((a, b) => {
+        if (a.score !== b.score) {
+            return b.score - a.score;
+        }
+        return a.completionTime - b.completionTime;
     });
-    leaderboardContainer.appendChild(list);
-    leaderboardContainer.style.display = 'block';
-}
 
-function restartGame() {
-    answerInputElement.style.display = 'block';
-    submitButton.style.display = 'block';
-    startGame();
+    leaderboardTableBody.innerHTML = '';
+    
+    // Display top 10 teams
+    const top10Teams = teamHistory.slice(0, 10);
+    
+    top10Teams.forEach((team, index) => {
+        const row = leaderboardTableBody.insertRow();
+        const rankCell = row.insertCell(0);
+        const teamCell = row.insertCell(1);
+        const scoreCell = row.insertCell(2);
+        const timeCell = row.insertCell(3);
+
+        rankCell.textContent = index + 1;
+        teamCell.textContent = team.teamName;
+        scoreCell.textContent = team.score;
+        timeCell.textContent = `${Math.floor(team.completionTime / 60).toString().padStart(2, '0')}:${(team.completionTime % 60).toString().padStart(2, '0')}`;
+    });
+    
+    leaderboardSection.style.display = 'block';
+    return teamHistory; // Return the full sorted list to determine the team's rank
 }
 
 // Event Listeners
 startGameButton.addEventListener('click', startGame);
 submitButton.addEventListener('click', checkAnswer);
 answerInputElement.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter' && gameStarted) {
+    if (event.key === 'Enter') {
         checkAnswer();
     }
 });
-restartGameButton.addEventListener('click', restartGame);
+
+// Initial setup on page load
+document.addEventListener('DOMContentLoaded', () => {
+    // Hide game elements until start
+    gridElement.style.display = 'none';
+    gameHeader.style.display = 'none';
+    document.querySelector('.challenge-area').style.display = 'none';
+    gameOverScreen.style.display = 'none';
+    leaderboardSection.style.display = 'none';
+});
