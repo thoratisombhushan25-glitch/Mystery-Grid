@@ -8,8 +8,7 @@ const answerInput = document.getElementById('answer-input');
 const submitButton = document.getElementById('submit-answer');
 const gameOverScreen = document.getElementById('game-over-screen');
 const finalMessage = document.getElementById('final-message');
-const correctSound = document.getElementById('correct-sound');
-const incorrectSound = document.getElementById('incorrect-sound');
+
 
 let currentSquareIndex = 0;
 let score = 0;
@@ -134,7 +133,7 @@ function checkAnswer() {
     }
 
     if (isCorrect) {
-        correctSound.play();
+      
         score += currentChallenge.points;
         scoreDisplay.textContent = score;
 
@@ -150,7 +149,7 @@ function checkAnswer() {
         updateGridVisuals();
         loadChallenge();
     } else {
-        incorrectSound.play();
+        
         alert("Incorrect. Try again!");
     }
 
