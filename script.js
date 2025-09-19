@@ -13,7 +13,7 @@ const incorrectSound = document.getElementById('incorrect-sound');
 
 let currentSquareIndex = 0;
 let score = 0;
-let timeLeft = 180; // 3 minutes in seconds
+let timeLeft = 900; // 3 minutes in seconds
 let timerInterval;
 const totalSquares = 25; // 5x5 grid
 let teamName = '';
@@ -53,7 +53,7 @@ function initializeGame() {
     // Reset all game variables
     currentSquareIndex = 0;
     score = 0;
-    timeLeft = 180; 
+    timeLeft = 900; 
     scoreDisplay.textContent = score;
     answerInput.value = '';
     
