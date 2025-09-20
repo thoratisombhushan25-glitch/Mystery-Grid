@@ -5,10 +5,10 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #2c3e50; /* Dark background color */
-    color: #ecf0f1; /* Light text color */
+    background-color: #2c3e50;
+    color: #ecf0f1;
     margin: 0;
-    flex-direction: column; /* Allows for multiple containers */
+    flex-direction: column;
 }
 
 /* Styles for the main game container */
@@ -24,7 +24,7 @@ body {
 }
 
 h1 {
-    color: #e67e22; /* Orange accent color */
+    color: #e67e22;
     margin-bottom: 20px;
 }
 
@@ -39,7 +39,7 @@ h1 {
 /* Grid layout for the game board */
 #grid-container {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* Creates a 5-column grid */
+    grid-template-columns: repeat(5, 1fr);
     gap: 10px;
     margin-bottom: 30px;
     border: 2px solid #e67e22;
@@ -51,7 +51,7 @@ h1 {
 .grid-square {
     width: 80px;
     height: 80px;
-    background-color: #7f8c8d; /* Default square color */
+    background-color: #7f8c8d;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -66,14 +66,14 @@ h1 {
 .grid-square.active {
     background-color: #3498db;
     border: 2px solid #2980b9;
-    animation: pulse 1.5s infinite; /* Adds a pulse animation */
+    animation: pulse 1.5s infinite;
 }
 
 /* Solved square color */
 .grid-square.solved {
     background-color: #27ae60;
     color: #fff;
-    transform: scale(1.05); /* Slightly enlarges solved squares */
+    transform: scale(1.05);
 }
 
 /* Styles for the challenge display area */
@@ -147,7 +147,7 @@ button:hover {
 /* Media query for responsive design on smaller screens */
 @media (max-width: 600px) {
     #grid-container {
-        grid-template-columns: repeat(3, 1fr); /* 3x3 on small screens */
+        grid-template-columns: repeat(3, 1fr);
         gap: 5px;
     }
     .grid-square {
