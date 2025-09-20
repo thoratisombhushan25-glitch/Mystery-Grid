@@ -8,15 +8,42 @@ const answerInput = document.getElementById('answer-input');
 const submitButton = document.getElementById('submit-answer');
 const gameOverScreen = document.getElementById('game-over-screen');
 const finalMessage = document.getElementById('final-message');
-
+const correctSound = document.getElementById('correct-sound');
+const incorrectSound = document.getElementById('incorrect-sound');
 
 let currentSquareIndex = 0;
 let score = 0;
-let timeLeft = 900; // 3 minutes in seconds
+let timeLeft = 180; // 3 minutes in seconds
 let timerInterval;
 const totalSquares = 25; // 5x5 grid
 let teamName = '';
 let shuffledChallenges = [];
+
+// Replace this with the unique URL from your Google Apps Script Web App
+const MONITORING_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+// Function to send team's progress to the host's monitoring sheet
+function sendDataToMonitor() {
+    const teamData = {
+        team_name: teamName,
+        score: score,
+        squares_solved: currentSquareIndex,
+        time_left: timeLeft,
+    };
+
+    fetch(MONITORING_URL, {
+        method: 'POST',
+        body: JSON.stringify(teamData),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+    }).then(response => {
+        console.log('Monitoring data sent successfully.');
+    }).catch(error => {
+        console.error('Error sending monitoring data:', error);
+    });
+}
 
 // Fisher-Yates shuffle algorithm to randomize the array
 function shuffleArray(array) {
@@ -35,7 +62,6 @@ function checkAndRegisterTeam() {
         return;
     }
     
-    // Check if team has already participated
     let participatingTeams = JSON.parse(localStorage.getItem('participatingTeams')) || [];
     if (participatingTeams.includes(name)) {
         alert("Warning: This team has already participated. No new high score will be recorded.");
@@ -49,19 +75,16 @@ function checkAndRegisterTeam() {
 
 // Main game initialization function
 function initializeGame() {
-    // Reset all game variables
     currentSquareIndex = 0;
     score = 0;
-    timeLeft = 900; 
+    timeLeft = 180; 
     scoreDisplay.textContent = score;
     answerInput.value = '';
     
-    // Hide game over screen and show the game
     gameOverScreen.classList.add('hidden');
     gridContainer.classList.remove('hidden');
     document.getElementById('challenge-display').classList.remove('hidden');
     
-    // Clear and re-generate the grid
     gridContainer.innerHTML = '';
     for (let i = 0; i < totalSquares; i++) {
         const square = document.createElement('div');
@@ -70,7 +93,6 @@ function initializeGame() {
         gridContainer.appendChild(square);
     }
 
-    // Shuffle challenges for a unique game experience
     shuffledChallenges = shuffleArray([...challenges]);
 
     updateGridVisuals();
@@ -124,7 +146,6 @@ function checkAnswer() {
     const userAnswer = answerInput.value.trim().toLowerCase();
     const currentChallenge = shuffledChallenges[currentSquareIndex];
     
-    // Handle answers that can be an array of correct options
     let isCorrect = false;
     if (Array.isArray(currentChallenge.answer)) {
         isCorrect = currentChallenge.answer.includes(userAnswer);
@@ -133,11 +154,13 @@ function checkAnswer() {
     }
 
     if (isCorrect) {
-      
+        correctSound.play();
         score += currentChallenge.points;
         scoreDisplay.textContent = score;
 
-        // Apply penalties if it's a penalty square
+        // Call the monitoring function here to update the host's spreadsheet
+        sendDataToMonitor(); 
+
         if (currentChallenge.isPenalty) {
             timeLeft = Math.max(0, timeLeft - currentChallenge.penaltyTime);
             alert(`Correct, but this was a penalty square! ${currentChallenge.penaltyTime} seconds deducted.`);
@@ -149,7 +172,7 @@ function checkAnswer() {
         updateGridVisuals();
         loadChallenge();
     } else {
-        
+        incorrectSound.play();
         alert("Incorrect. Try again!");
     }
 
@@ -162,40 +185,33 @@ function checkAnswer() {
 function endGame() {
     clearInterval(timerInterval);
 
-    // Update and sort the leaderboard
     let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     leaderboard.push({ name: teamName, score: score });
     leaderboard.sort((a, b) => b.score - a.score);
 
-    // Truncate to top 10
     leaderboard = leaderboard.slice(0, 10);
 
-    // Find the rank of the current team
     const teamRank = leaderboard.findIndex(team => team.name === teamName);
 
-    // Display the appropriate message
     if (teamRank !== -1 && teamRank < 10) {
         finalMessage.textContent = `Congratulations, ${teamName}! You ranked in the top 10 with a score of ${score}!`;
     } else {
         finalMessage.textContent = `Thank you for participating, ${teamName}! Your final score is ${score}.`;
     }
 
-    // Save the updated leaderboard to localStorage
     localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
 
-    // Hide game elements and show the end screen
     gridContainer.classList.add('hidden');
     document.getElementById('challenge-display').classList.add('hidden');
     gameOverScreen.classList.remove('hidden');
 
-    // Display the leaderboard
     displayLeaderboard();
 }
 
 // Function to display the leaderboard
 function displayLeaderboard() {
     const leaderboardList = document.getElementById('leaderboard-list');
-    leaderboardList.innerHTML = ''; // Clear previous list
+    leaderboardList.innerHTML = '';
     const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     
     leaderboard.forEach((entry, index) => {
@@ -207,8 +223,6 @@ function displayLeaderboard() {
     document.getElementById('leaderboard-container').classList.remove('hidden');
 }
 
-// Event listeners
+// Event listener to start the game by checking for team name
 submitButton.addEventListener('click', checkAnswer);
-
-// Start the game by checking for team name
 checkAndRegisterTeam();
