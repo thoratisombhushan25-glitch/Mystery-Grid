@@ -154,7 +154,7 @@ function checkAnswer() {
     }
 
     if (isCorrect) {
-        correctSound.play();
+        
         score += currentChallenge.points;
         scoreDisplay.textContent = score;
 
@@ -172,7 +172,7 @@ function checkAnswer() {
         updateGridVisuals();
         loadChallenge();
     } else {
-        incorrectSound.play();
+        
         alert("Incorrect. Try again!");
     }
 
