@@ -20,7 +20,7 @@ let teamName = '';
 let shuffledChallenges = [];
 
 // Replace this with the unique URL from your Google Apps Script Web App
-const MONITORING_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const MONITORING_URL = 'https://script.google.com/macros/s/AKfycbyD0fBUWgLBBDxzAnRysPnUW6FjojCNgqXYk1AdspcEQJBeDs9xvPeCO_kC8GSBSPtt/exec';
 
 // Function to send team's progress to the host's monitoring sheet
 function sendDataToMonitor() {
