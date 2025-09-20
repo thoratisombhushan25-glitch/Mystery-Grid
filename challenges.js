@@ -1,5 +1,3 @@
-// A simple array of challenge objects.
-// Each object contains a question, the correct answer(s), and a point value.
 const challenges = [
     // Riddles
     { type: "Riddle", question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", answer: "echo", points: 10 },
